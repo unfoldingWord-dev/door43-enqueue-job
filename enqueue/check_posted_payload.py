@@ -1,10 +1,11 @@
 # This code adapted by RJH June 2018 from tx-manager/client_webhook/ClientWebhookHandler
 #   Updated Sept 2018 to add callback check
 
+import os
 from typing import Dict, Tuple, List, Any, Optional
 
 
-GITEA_URL = 'https://git.door43.org'
+GITEA_URL = os.getenv('GITEA_URL', 'https://git.door43.org')
 UNWANTED_REPO_OWNER_USERNAMES = (  # code repos, not "content", so don't convert—blacklisted
                                 'translationCoreApps',
                                 'unfoldingWord-box3',
