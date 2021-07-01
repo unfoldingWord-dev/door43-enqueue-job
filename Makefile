@@ -53,6 +53,14 @@ composeEnqueueRedis: checkEnvVariables
 	docker-compose --file docker-compose-enqueue-redis.yaml build
 	docker-compose --file docker-compose-enqueue-redis.yaml up
 
+composeEnqueueRedisLocal:
+	# NOTE: For testing only (using the 'dev-' prefix)
+	# This runs the enqueue and redis processes via nginx/gunicorn
+	#   and then connect at 127.0.0.1:8080/
+	#   and "rq worker --config settings_enqueue" can connect to redis at 127.0.0.1:6379
+	docker-compose --file docker-compose-enqueue-redis-local.yaml build
+	docker-compose --file docker-compose-enqueue-redis-local.yaml up
+
 imageDev:
 	# NOTE: This build sets the prefix to 'dev-' and sets debug mode
 	docker build --file enqueue/Dockerfile-developBranch --tag unfoldingword/door43_enqueue_job:develop enqueue

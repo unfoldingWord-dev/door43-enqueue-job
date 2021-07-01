@@ -56,7 +56,12 @@ class TestPayloadCheck(TestCase):
 
     def test_missing_repo(self):
         headers = {'X-Gitea-Event':'push'}
-        payload_json = {'something':'whatever'}
+        payload_json = {
+            'repository':{
+                'something':'whatever',
+                'private':False,
+                }
+            }
         mock_request = Mock(**{'get_json.return_value':payload_json})
         mock_request.headers = headers
         mock_request.data = payload_json
@@ -70,7 +75,8 @@ class TestPayloadCheck(TestCase):
         headers = {'X-Gitea-Event':'push'}
         payload_json = {
             'repository':{
-                'html_url':'whatever'
+                'html_url':'whatever',
+                'private':False,
                 }
             }
         mock_request = Mock(**{'get_json.return_value':payload_json})
@@ -86,7 +92,8 @@ class TestPayloadCheck(TestCase):
         headers = {'X-Gitea-Event':'push'}
         payload_json = {
             'repository':{
-                'html_url':'https://git.door43.org/whatever'
+                'html_url':'https://git.door43.org/whatever',
+                'private':False,
                 }
             }
         mock_request = Mock(**{'get_json.return_value':payload_json})
@@ -104,6 +111,7 @@ class TestPayloadCheck(TestCase):
             'ref':None,
             'repository':{
                 'html_url':'https://git.door43.org/whatever',
+                'private':False,
                 },
             }
         mock_request = Mock(**{'get_json.return_value':payload_json})
@@ -121,6 +129,7 @@ class TestPayloadCheck(TestCase):
             'ref':'refs/heads/master',
             'repository':{
                 'html_url':'https://git.door43.org/whatever',
+                'private':False,
                 },
             }
         mock_request = Mock(**{'get_json.return_value':payload_json})
@@ -139,6 +148,7 @@ class TestPayloadCheck(TestCase):
             'repository':{
                 'html_url':'https://git.door43.org/whatever',
                 'default_branch':'master',
+                'private':False,
                 },
             }
         mock_request = Mock(**{'get_json.return_value':payload_json})
@@ -157,6 +167,7 @@ class TestPayloadCheck(TestCase):
             'repository':{
                 'html_url':'https://git.door43.org/whatever',
                 'default_branch':'master',
+                'private':False,
                 },
             }
         mock_request = Mock(**{'get_json.return_value':payload_json})
@@ -175,6 +186,7 @@ class TestPayloadCheck(TestCase):
             'repository':{
                 'html_url':'https://git.door43.org/whatever',
                 'default_branch':'master',
+                'private':False,
                 },
             'commits': [],
             }
@@ -193,6 +205,7 @@ class TestPayloadCheck(TestCase):
             'action': 'published',
             'repository':{
                 'html_url':'https://git.door43.org/whatever',
+                'private':False,
                 },
             }
         mock_request = Mock(**{'get_json.return_value':payload_json})
@@ -202,6 +215,25 @@ class TestPayloadCheck(TestCase):
         expected = True, payload_json
         self.assertEqual(output, expected)
 
+    def test_private_repo(self):
+        headers = {'X-Gitea-Event':'push'}
+        payload_json = {
+            'ref':'refs/heads/master',
+            'repository':{
+                'html_url':'https://git.door43.org/whatever',
+                'default_branch':'master',
+                'private':True,
+                },
+            }
+        mock_request = Mock(**{'get_json.return_value':payload_json})
+        mock_request.headers = headers
+        mock_request.data = payload_json
+        output = check_posted_payload(mock_request, logging)
+        expected = False, {
+            'error': "The repo for push is not public."
+        }
+        self.assertEqual(output, expected)
+
     def test_basic_json_success(self):
         headers = {'X-Gitea-Event':'push'}
         payload_json = {
@@ -209,6 +241,7 @@ class TestPayloadCheck(TestCase):
             'repository':{
                 'html_url':'https://git.door43.org/whatever',
                 'default_branch':'master',
+                'private':False,
                 },
             'commits': ['some commit info'],
             }
